@@ -1,0 +1,141 @@
+{
+  "sections": [
+    {
+      "id": "S0",
+      "title": "VIP Majlis",
+      "purpose": "CEO visitors, VIPs and special guests.",
+      "experience": [
+        "Distinct hospitality area around the existing curved seat.",
+        "Warm plaster, amber line and navy sign are a layered-interior proposal."
+      ],
+      "status": "purpose approved; interior treatment proposed",
+      "note": "No new seating was added; preserve the user's existing seat.",
+      "source": "BOOTH-SECTIONS.md"
+    },
+    {
+      "id": "S1",
+      "title": "Welcome & Hospitality",
+      "purpose": "Welcome, usher guidance and Arabic treats.",
+      "experience": [
+        "Ushers orient visitors at the entrance.",
+        "Arabic treats are offered at the existing counter."
+      ],
+      "status": "purpose approved; layered styling proposed",
+      "note": "The S1 welcome leads into the S2 introduction route.",
+      "source": "BOOTH-SECTIONS.md"
+    },
+    {
+      "id": "S2",
+      "title": "Manga Productions Introduction",
+      "purpose": "Introduce Manga Productions through the complete L-shaped route.",
+      "experience": [
+        "Existing timeline on the outer wall.",
+        "Approved From sketch to screen: Imagine, Storyboard, In Colour.",
+        "Approved 15-position recognition gallery after the left turn: three bays, three shelf levels, 6 + 6 + 3."
+      ],
+      "status": "timeline retained; process wall and 15-trophy installation approved",
+      "note": "The portrait display is a 20-second silent artwork montage, not anime episode footage. Trophy forms are placeholders; final inventory, dimensions, weights and screen content remain pending.",
+      "source": "Blender Tools/S2 Process Wall/README.md"
+    },
+    {
+      "id": "S3",
+      "title": "Central Activation",
+      "purpose": "Activation area.",
+      "experience": [
+        "WATCH / READ / PLAY selector with three angled touch surfaces is proposed.",
+        "Hardware is modeled; interactive software is not implemented."
+      ],
+      "status": "purpose approved; activation concept proposed",
+      "note": "The activation format is not yet specified in the authoritative brief.",
+      "source": "Blender Tools/Layered Interiors/README.md"
+    },
+    {
+      "id": "S4",
+      "title": "Game IPs",
+      "purpose": "Game IPs.",
+      "experience": [
+        "Proposed macro-forest scenic layers and three game demo positions.",
+        "Supplied IP posters are concept screen artwork, not newly created gameplay footage."
+      ],
+      "status": "purpose approved; interior and demo treatment proposed",
+      "note": "The proposed scenery is a generated background reconstruction; supplied source posters remain intact.",
+      "source": "Blender Tools/Layered Interiors/README.md"
+    },
+    {
+      "id": "S5",
+      "title": "Anime & Manga",
+      "purpose": "Anime and manga.",
+      "experience": [
+        "Proposed manga browsing and character photo moments.",
+        "DUB A SCENE screen and microphone are a proposed experience."
+      ],
+      "status": "purpose approved; interior and interaction treatment proposed",
+      "note": "Original display furniture is retained; the dubbing interaction is not implemented software.",
+      "source": "Blender Tools/Layered Interiors/README.md"
+    }
+  ],
+  "variants": [
+    {
+      "id": "base",
+      "title": "Base",
+      "subtitle": "Plain neutral walls with straight level tops",
+      "details": [
+        "Four plain replacement walls retain the established curved footprint and interiors.",
+        "A neutral exterior option for design comparison, with no heritage treatment.",
+        "Saved render dated 12 October 2026."
+      ]
+    },
+    {
+      "id": "diriyah",
+      "title": "Diriyah",
+      "subtitle": "Earthen heritage finish",
+      "details": [
+        "Triangular motifs and earthen material interpretation.",
+        "Applies only to perimeter-facing Rear, Front Left and Entry walls.",
+        "Saved as AJ27-03-Diriyah-Exterior.blend."
+      ]
+    },
+    {
+      "id": "rijal",
+      "title": "Rijal Almaa",
+      "subtitle": "A skyline of stepped stone houses",
+      "details": [
+        "Several raised stone-house tops with lower links, varied heights, pale coping and darker charcoal interior walls.",
+        "Saved render dated 13 October 2026.",
+        "Saved as AJ27-05-Rijal-Almaa.blend."
+      ]
+    },
+    {
+      "id": "jeddah",
+      "title": "Jeddah Al-Balad",
+      "subtitle": "Varied house tops, cornices and timber screens",
+      "details": [
+        "Different-height house tops with cornices and timber crowns, plus darker warm-gray interior walls.",
+        "A shallow scenic exterior study, not a literal historic reconstruction.",
+        "Saved render dated 13 October 2026; scene saved as AJ27-04-Jeddah-Al-Balad.blend."
+      ]
+    }
+  ],
+  "decisions": [
+    {
+      "text": "The web uses the original saved booth export plus Base and Rijal/Jeddah wall supplements. The revised profiles were saved from inspected live Blender on 12 October. Base, Rijal and Jeddah renders are dated 12 October; Diriyah is dated 11 October.",
+      "status": "presentation implementation choice",
+      "source": "Blender Tools/Roofline Refinement/README.md"
+    },
+    {
+      "text": "The 12 × 9 m footprint, section layout and interior features are preserved; Rijal and Jeddah use independent structural walls and facade tops.",
+      "status": "verified study constraint",
+      "source": "Blender Tools/Exterior Variants/README.md"
+    },
+    {
+      "text": "Do not present proposed activation formats, final awards inventory, final screen media, or trophy specifications as approved.",
+      "status": "open content",
+      "source": "HANDOFF.md"
+    },
+    {
+      "text": "Authoritative section-plan image: Booth Sections/Booth-layout - S0-S5.png. No separately named visitor-flow image was found.",
+      "status": "asset finding",
+      "source": "BOOTH-SECTIONS.md"
+    }
+  ]
+}

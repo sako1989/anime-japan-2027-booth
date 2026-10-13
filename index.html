@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#172a2b"><title>Anime Japan 2027 · Booth walkthrough</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 60'%3E%3Crect width='60' height='60' rx='12' fill='%23172a2b'/%3E%3Ctext x='30' y='40' text-anchor='middle' font-size='32' fill='%23e4bf81'%3EM%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css?v=20261013-windows"><link rel="stylesheet" href="flow-simulation.css?v=2">
+<script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script>
+</head>
+<body>
+<header><a class="brand" href="#plan" aria-label="Return to floor plan"><span class="monogram" aria-hidden="true">AJ<span>27</span></span><span>MANGA PRODUCTIONS<small>ANIME JAPAN 2027</small></span></a><nav id="chapters" aria-label="Presentation chapters"></nav><button id="fullscreen" class="quiet" title="Enter or exit fullscreen (F)" aria-label="Present fullscreen">⛶ <span>Present</span></button></header>
+<div class="workspace">
+<main>
+<div class="heading"><div class="heading-title"><div class="eyebrow" id="eyebrow"></div><h1 id="title" aria-live="polite" aria-atomic="true"></h1><span id="step-status"></span></div><button id="details" class="details-button" aria-haspopup="dialog">Details <span>↗</span></button></div>
+<nav id="step-tabs" aria-label="Steps in this chapter"></nav>
+<div class="presentation">
+<section class="visual" id="visual" aria-label="Booth visualization">
+<div id="stage3d" hidden><canvas id="canvas" aria-label="Interactive booth. Drag to orbit, scroll to zoom."></canvas><div id="hotspots"></div></div>
+<div id="image-stage"></div><div id="compare-stage" hidden></div><div id="summary-stage" hidden></div>
+<div class="view-top" id="view-top"></div>
+<div id="loading" role="status" hidden><span class="loader"></span><span id="loading-label">Preparing the 3D booth…</span></div>
+<div class="view-bottom"><span id="visual-caption"></span><span id="interaction-hint"></span></div>
+</section>
+
+</div>
+<footer><div class="step-label"><span id="step-number"></span><div class="progress"><div id="progress-bar"></div></div><span id="step-name"></span></div><div class="navigation"><button id="previous" class="quiet">← <span>Back</span></button><button id="next" class="primary">Next <span>→</span></button></div></footer>
+</main>
+</div>
+<dialog id="details-dialog" aria-label="Design details"><button id="close-details" class="dialog-close" aria-label="Close details">✕</button><aside class="story"><div id="story-content"></div><div id="story-controls"></div></aside></dialog>
+<dialog id="movie-dialog" aria-label="Process artwork montage"><button id="close-movie" class="dialog-close" aria-label="Close video">✕</button><video controls muted loop preload="none" src="assets/movie.mp4"></video><p>20-second concept artwork montage · illustrative studies</p></dialog>
+<dialog id="lightbox"><button id="close-lightbox" aria-label="Close enlarged image">✕</button><img id="lightbox-image" alt=""><p id="lightbox-caption"></p></dialog>
+<div id="notice" role="status" hidden></div>
+<script type="module" src="app.js?v=20261013-windows"></script>
+<noscript>This interactive presentation needs JavaScript. Open assets/plan.png to see the confirmed floor plan.</noscript>
+</body></html>
