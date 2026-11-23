@@ -19,7 +19,7 @@ export class BoothViewer {
  async load(progress){
   if(this.model)return;
   const loader=new GLTFLoader();
-  const gltf=await loader.loadAsync('./assets/booth.glb?v=20261123-window-spacing',e=>progress(e.total?`Loading 3D · ${Math.round(e.loaded/e.total*100)}%`:'Loading the booth geometry & artwork…'));
+  const gltf=await loader.loadAsync('./assets/booth.glb?v=20261123-four-bays',e=>progress(e.total?`Loading 3D · ${Math.round(e.loaded/e.total*100)}%`:'Loading the booth geometry & artwork…'));
   this.model=gltf.scene;this.prepare(this.model);this.scene.add(this.model);
   this.originalWalls=this.findOriginalWalls(this.model);
   try{
