@@ -45,7 +45,7 @@ function fitPlan(){const stage=$('#image-stage'),wrap=stage.querySelector('.plan
 new ResizeObserver(fitPlan).observe($('#image-stage'));
 async function ensureViewer(){
  if(viewer)return viewer;
- if(!viewerPromise){viewerPromise=import('./viewer.js?v=20261123-outward').then(async ({BoothViewer})=>{
+ if(!viewerPromise){viewerPromise=import('./viewer.js?v=20261123-rijal-paint').then(async ({BoothViewer})=>{
   const v=new BoothViewer($('#canvas'),$('#hotspots'),sections,id=>go(id));
   try{await v.load(p=>{$('#loading-label').textContent=p;});viewer=v;window.boothViewer=v;return v;}
   catch(error){v.dispose();throw error;}

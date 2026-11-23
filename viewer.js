@@ -19,7 +19,7 @@ export class BoothViewer {
  async load(progress){
   if(this.model)return;
   const loader=new GLTFLoader();
-  const gltf=await loader.loadAsync('./assets/booth.glb?v=20261123-outward',e=>progress(e.total?`Loading 3D · ${Math.round(e.loaded/e.total*100)}%`:'Loading the booth geometry & artwork…'));
+  const gltf=await loader.loadAsync('./assets/booth.glb?v=20261123-display-support',e=>progress(e.total?`Loading 3D · ${Math.round(e.loaded/e.total*100)}%`:'Loading the booth geometry & artwork…'));
   this.model=gltf.scene;this.prepare(this.model);this.scene.add(this.model);
   this.originalWalls=this.findOriginalWalls(this.model);
   try{
@@ -50,8 +50,11 @@ export class BoothViewer {
   }catch(error){this.heritageLoadError=error;this.heritageGroups={};this.heritageReplacements={};console.error('Heritage rooflines unavailable:',error);}
   try{
    progress('Loading the rear passage gate…');
-   const gate=await loader.loadAsync('./assets/gate.glb?v=20261123-window-finish');
-   this.gateModel=gate.scene;this.prepare(this.gateModel);this.scene.add(this.gateModel);
+   const gate=await loader.loadAsync('./assets/gate.glb?v=20261123-rijal-paint');
+   this.gateModel=gate.scene;
+   this.paintedGate=this.gateModel.getObjectByName('rijal_painted_gate');
+   this.prepare(this.gateModel);
+   this.scene.add(this.gateModel);
   }catch(error){this.gateLoadError=error;console.error('Rear passage gate unavailable:',error);}
   this.setVariant('base');this.resize();
  }
@@ -88,6 +91,7 @@ export class BoothViewer {
   if(id==='base'&&(!this.baseGroup||this.originalWalls.length!==4))return false;
   if(['rijal','jeddah'].includes(id)&&(!this.heritageGroups?.[id]||!this.validRoofline(this.heritageReplacements?.[id]||[])||this.originalWalls.length!==4))return false;
   this.variant=id;
+  this.setGroupVisible(this.paintedGate,id==='rijal');
   // Reset all mutually exclusive wall sets before revealing one. This makes repeated
   // toolbar switches idempotent and prevents old rooflines from overlapping a supplement.
   for(const name of heritage){this.setGroupVisible(this.findByKey(this.model,'variant_'+name),name===id);}
