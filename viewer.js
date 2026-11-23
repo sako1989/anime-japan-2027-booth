@@ -50,7 +50,7 @@ export class BoothViewer {
   }catch(error){this.heritageLoadError=error;this.heritageGroups={};this.heritageReplacements={};console.error('Heritage rooflines unavailable:',error);}
   try{
    progress('Loading the rear passage gate…');
-   const gate=await loader.loadAsync('./assets/gate.glb?v=20261123-rear-gate');
+   const gate=await loader.loadAsync('./assets/gate.glb?v=20261123-window-finish');
    this.gateModel=gate.scene;this.prepare(this.gateModel);this.scene.add(this.gateModel);
   }catch(error){this.gateLoadError=error;console.error('Rear passage gate unavailable:',error);}
   this.setVariant('base');this.resize();
