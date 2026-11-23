@@ -50,9 +50,11 @@ export class BoothViewer {
   }catch(error){this.heritageLoadError=error;this.heritageGroups={};this.heritageReplacements={};console.error('Heritage rooflines unavailable:',error);}
   try{
    progress('Loading the rear passage gate…');
-   const gate=await loader.loadAsync('./assets/gate.glb?v=20261123-rijal-paint');
+   const gate=await loader.loadAsync('./assets/gate.glb?v=20261123-rijal-arch-only');
    this.gateModel=gate.scene;
    this.paintedGate=this.gateModel.getObjectByName('rijal_painted_gate');
+   this.timberGate=this.gateModel.getObjectByName('timber_gate');
+   if(!this.timberGate||!this.paintedGate)throw Error('The rear gate model is missing a facade option.');
    this.prepare(this.gateModel);
    this.scene.add(this.gateModel);
   }catch(error){this.gateLoadError=error;console.error('Rear passage gate unavailable:',error);}
@@ -92,6 +94,7 @@ export class BoothViewer {
   if(['rijal','jeddah'].includes(id)&&(!this.heritageGroups?.[id]||!this.validRoofline(this.heritageReplacements?.[id]||[])||this.originalWalls.length!==4))return false;
   this.variant=id;
   this.setGroupVisible(this.paintedGate,id==='rijal');
+  this.setGroupVisible(this.timberGate,id!=='rijal');
   // Reset all mutually exclusive wall sets before revealing one. This makes repeated
   // toolbar switches idempotent and prevents old rooflines from overlapping a supplement.
   for(const name of heritage){this.setGroupVisible(this.findByKey(this.model,'variant_'+name),name===id);}
