@@ -50,11 +50,23 @@ export class BoothViewer {
   }catch(error){this.heritageLoadError=error;this.heritageGroups={};this.heritageReplacements={};console.error('Heritage rooflines unavailable:',error);}
   try{
    progress('Loading the rear passage gate…');
-   const gate=await loader.loadAsync('./assets/gate.glb?v=20261123-rijal-arch-only');
+   const gate=await loader.loadAsync('./assets/gate.glb?v=20261123-diriyah-door');
    this.gateModel=gate.scene;
    this.paintedGate=this.gateModel.getObjectByName('rijal_painted_gate');
    this.timberGate=this.gateModel.getObjectByName('timber_gate');
-   if(!this.timberGate||!this.paintedGate)throw Error('The rear gate model is missing a facade option.');
+   this.diriyahGate=this.gateModel.getObjectByName('diriyah_gate');
+   this.diriyahDoors={
+    west:this.gateModel.getObjectByName('diriyah_door_west'),
+    east:this.gateModel.getObjectByName('diriyah_door_east')
+   };
+   if(!this.timberGate||!this.paintedGate||!this.diriyahGate||!this.diriyahDoors.west||!this.diriyahDoors.east){
+    throw Error('The rear gate model is missing a facade option or Diriyah door pivot.');
+   }
+   this.diriyahDoorOpenQuaternions={
+    west:this.diriyahDoors.west.quaternion.clone(),
+    east:this.diriyahDoors.east.quaternion.clone()
+   };
+   this.diriyahDoorsOpen=true;
    this.prepare(this.gateModel);
    this.scene.add(this.gateModel);
   }catch(error){this.gateLoadError=error;console.error('Rear passage gate unavailable:',error);}
@@ -92,9 +104,12 @@ export class BoothViewer {
   if(!['base',...heritage].includes(id))return false;
   if(id==='base'&&(!this.baseGroup||this.originalWalls.length!==4))return false;
   if(['rijal','jeddah'].includes(id)&&(!this.heritageGroups?.[id]||!this.validRoofline(this.heritageReplacements?.[id]||[])||this.originalWalls.length!==4))return false;
+  const enteringDiriyah=id==='diriyah'&&this.variant!==id;
   this.variant=id;
   this.setGroupVisible(this.paintedGate,id==='rijal');
-  this.setGroupVisible(this.timberGate,id!=='rijal');
+  this.setGroupVisible(this.timberGate,id==='base'||id==='jeddah');
+  this.setGroupVisible(this.diriyahGate,id==='diriyah');
+  if(enteringDiriyah||id!=='diriyah')this.setDiriyahDoorsOpen(true,true);
   // Reset all mutually exclusive wall sets before revealing one. This makes repeated
   // toolbar switches idempotent and prevents old rooflines from overlapping a supplement.
   for(const name of heritage){this.setGroupVisible(this.findByKey(this.model,'variant_'+name),name===id);}
@@ -108,6 +123,26 @@ export class BoothViewer {
    this.setNodesVisible(this.originalNodesFor(this.heritageReplacements[id]),false);
   }
   this.studio.invalidateShadows();this.invalidate();
+  return true;
+ }
+ setDiriyahDoorsOpen(open,immediate=false){
+  if(!this.diriyahDoors||!this.diriyahDoorOpenQuaternions)return false;
+  this.diriyahDoorsOpen=open;
+  const target={
+   west:open?this.diriyahDoorOpenQuaternions.west:new THREE.Quaternion(),
+   east:open?this.diriyahDoorOpenQuaternions.east:new THREE.Quaternion()
+  };
+  if(immediate||matchMedia('(prefers-reduced-motion: reduce)').matches){
+   this.diriyahDoors.west.quaternion.copy(target.west);
+   this.diriyahDoors.east.quaternion.copy(target.east);
+   this.doorTween=null;this.studio.invalidateShadows();this.invalidate();
+   return true;
+  }
+  this.doorTween={
+   from:{west:this.diriyahDoors.west.quaternion.clone(),east:this.diriyahDoors.east.quaternion.clone()},
+   to:target,start:performance.now(),duration:560
+  };
+  this.invalidate();
   return true;
  }
  setLabels(value){this.labels=value;this.overlay.hidden=!value;this.invalidate();}
@@ -126,9 +161,9 @@ export class BoothViewer {
  focus(id){this.currentSection=id;this.markers.forEach(m=>m.el.classList.toggle('active',m.id===id));if(id==='overall'){this.cameraView('overall');return;}const a=this.sections[id]?.anchor;if(!a)return;
   const targets={S0:{eye:[7,8,13],target:[1.4,.9,2.6]},S1:{eye:[12,8,12],target:[4,1,1.6]},S2:{eye:[9,13,6],target:[3,1,-1.4]},S3:{eye:[-5,11,9],target:[-1.7,.7,0]},S4:{eye:[-6,11,5],target:[-3,1,-2.1]},S5:{eye:[-9,10,9],target:[-3,1,2.3]}};this.move(targets[id].eye,targets[id].target);
  }
- cameraView(name){const views={overall:[[-11,10,15],[0,.9,0]],top:[[0,22,.015],[0,0,0]],front:[[0,7,24],[0,1,0]],rear:[[0,8,-24],[0,1,0]],'rear-gate':[[3.8,3.8,-11],[0,1.7,-3.65]]};let [eye,target]=views[name]||views.overall;const aspect=this.camera.aspect;const scale=aspect<1.2?Math.max(1,1.15/aspect):1;this.move(eye.map(n=>n*scale),target);}
+ cameraView(name){const views={overall:[[-11,10,15],[0,.9,0]],top:[[0,22,.015],[0,0,0]],front:[[0,7,24],[0,1,0]],rear:[[0,8,-24],[0,1,0]],'rear-gate':this.variant==='diriyah'?[[1.32,2.16,-10.7],[0,1.48,-4.12]]:[[3.8,3.8,-11],[0,1.7,-3.65]]};let [eye,target]=views[name]||views.overall;const aspect=this.camera.aspect;const scale=aspect<1.2?Math.max(1,1.15/aspect):1;this.move(eye.map(n=>n*scale),target);}
  move(eye,target){this.tween={from:this.camera.position.clone(),to:new THREE.Vector3(...eye),targetFrom:this.controls.target.clone(),targetTo:new THREE.Vector3(...target),start:performance.now(),duration:matchMedia('(prefers-reduced-motion: reduce)').matches?0:750};}
- frame(now){this.frameHandle=requestAnimationFrame(this.frame);if(!this.active||document.hidden)return;if(this.tween){const t=this.tween,u=Math.min(1,(now-t.start)/(t.duration||1)),e=u*u*(3-2*u);this.camera.position.lerpVectors(t.from,t.to,e);this.controls.target.lerpVectors(t.targetFrom,t.targetTo,e);if(u===1)this.tween=null;this.invalidate();}this.controls.update();if(!this.renderRequested)return;this.renderRequested=false;this.studio.render();
+ frame(now){this.frameHandle=requestAnimationFrame(this.frame);if(!this.active||document.hidden)return;if(this.tween){const t=this.tween,u=Math.min(1,(now-t.start)/(t.duration||1)),e=u*u*(3-2*u);this.camera.position.lerpVectors(t.from,t.to,e);this.controls.target.lerpVectors(t.targetFrom,t.targetTo,e);if(u===1)this.tween=null;this.invalidate();}if(this.doorTween){const t=this.doorTween,u=Math.min(1,(now-t.start)/(t.duration||1)),e=u*u*(3-2*u);this.diriyahDoors.west.quaternion.slerpQuaternions(t.from.west,t.to.west,e);this.diriyahDoors.east.quaternion.slerpQuaternions(t.from.east,t.to.east,e);if(u===1)this.doorTween=null;this.studio.invalidateShadows();this.invalidate();}this.controls.update();if(!this.renderRequested)return;this.renderRequested=false;this.studio.render();
   if(this.labels){const w=this.canvas.clientWidth,h=this.canvas.clientHeight;for(const m of this.markers){const p=m.p.clone().project(this.camera);const visible=p.z<1&&p.z>-1&&Math.abs(p.x)<.98&&Math.abs(p.y)<.96;m.el.hidden=!visible;if(visible){m.el.style.left=((p.x+1)/2*w)+'px';m.el.style.top=((-p.y+1)/2*h)+'px';}}}
  }
 }

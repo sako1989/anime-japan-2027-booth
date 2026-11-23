@@ -24,6 +24,8 @@ const steps = [
 ];
 let simulation=null;
 let index=0,variant='base',mode='3d',viewer=null,viewerPromise=null,content=null,labels=false,transitionId=0;
+const entryView=new URLSearchParams(location.search);
+let requestedCamera=entryView.get('view');
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const button=(label,action,active=false)=>`<button class="view-btn ${active?'active':''}" data-action="${action}">${label}</button>`;
 function story(kicker,title,lede,points,note='',status=''){
@@ -34,7 +36,7 @@ const variantNames={base:'Base',diriyah:'Diriyah',rijal:'Rijal Al Alma',jeddah:'
 const variantRenderDate={base:'23 November 2026',diriyah:'23 November 2026',rijal:'23 November 2026',jeddah:'23 November 2026'};
 function variants(){return `<p class="small-title">Exterior option</p><div class="version-buttons">${Object.keys(variantNames).map(v=>`<button data-variant="${v}" class="${variant===v?'active':''}">${variantNames[v]}</button>`).join('')}</div>`;}
 function variantToolbar(){return `<span class="view-sep"></span>${Object.keys(variantNames).map(v=>button(variantNames[v],`variant-${v}`,variant===v)).join('')}`;}
-function renderUrl(file){return 'assets/'+file+'?v=20261123-rijal-arch-only';}
+function renderUrl(file){return 'assets/'+file+'?v=20261123-diriyah-door';}
 function image(src,alt){$('#image-stage').innerHTML=`<img class="hero-image" src="${renderUrl(src)}" alt="${esc(alt)}" data-enlarge="${src}">`;$('#image-stage').className='image-mode'+(steps[index].type==='detail'?' contain':'');}
 function showPlan(){
  $('#image-stage').innerHTML=`<div class="plan-wrap"><img src="assets/plan.png" alt="Confirmed S0 to S5 floor plan with visitor flow arrows; entrance lower right, VIP lower centre, introduction upper right, activation centre, games upper left, anime and manga lower left."></div>`;
@@ -46,7 +48,7 @@ function fitPlan(){const stage=$('#image-stage'),wrap=stage.querySelector('.plan
 new ResizeObserver(fitPlan).observe($('#image-stage'));
 async function ensureViewer(){
  if(viewer)return viewer;
- if(!viewerPromise){viewerPromise=import('./viewer.js?v=20261123-rijal-arch-only').then(async ({BoothViewer})=>{
+ if(!viewerPromise){viewerPromise=import('./viewer.js?v=20261123-diriyah-door').then(async ({BoothViewer})=>{
   const v=new BoothViewer($('#canvas'),$('#hotspots'),sections,id=>go(id));
   try{await v.load(p=>{$('#loading-label').textContent=p;});viewer=v;window.boothViewer=v;return v;}
   catch(error){v.dispose();throw error;}
@@ -55,11 +57,23 @@ async function ensureViewer(){
 }
 async function show3D(step,token){
  $('#stage3d').hidden=false;$('#image-stage').hidden=true;
- $('#view-top').innerHTML=button('Studio 3D','3d',true)+button('Saved render','render')+'<span class="view-sep"></span>'+button('Top','top')+button('Rear gate','rear-gate')+button('↺ Reset','reset')+button('Sections','labels',labels)+variantToolbar();
+ const doorControls=variant==='diriyah'?'<button class="view-btn" data-action="door-pose" disabled>Close doors</button>':'';
+ $('#view-top').innerHTML=button('Studio 3D','3d',true)+button('Saved render','render')+'<span class="view-sep"></span>'+button('Top','top')+button('Rear gate','rear-gate')+doorControls+button('↺ Reset','reset')+button('Sections','labels',labels)+variantToolbar();
  $('#visual-caption').textContent='Natural studio · '+variantNames[variant];
  $('#interaction-hint').textContent='Drag to orbit · Scroll to zoom';
  if(!viewer){$('#loading').hidden=false;$('#loading-label').textContent='Loading the saved booth model…';}
- try {let v=await ensureViewer();if(token!==transitionId)return;$('#loading').hidden=true;if(!v.setVariant(variant))throw Error(`The ${variantNames[variant]} wall option is unavailable.`);v.setLabels(labels);v.resize();if(!v.hasFocused||v.currentSection!==(step.section||'overall')){v.focus(step.section||'overall');v.hasFocused=true;}v.setActive(true);}
+ try {let v=await ensureViewer();if(token!==transitionId)return;$('#loading').hidden=true;if(!v.setVariant(variant))throw Error(`The ${variantNames[variant]} wall option is unavailable.`);v.setLabels(labels);v.resize();if(!v.hasFocused||v.currentSection!==(step.section||'overall')){v.focus(step.section||'overall');v.hasFocused=true;}v.setActive(true);
+  if(requestedCamera==='rear-gate'){
+   v.cameraView('rear-gate');
+   if(variant==='diriyah'&&entryView.get('doors')==='closed')v.setDiriyahDoorsOpen(false,true);
+   requestedCamera=null;
+  }
+  const poseButton=$('[data-action="door-pose"]');
+  if(poseButton&&v.diriyahDoorOpenQuaternions){
+   poseButton.disabled=false;
+   poseButton.textContent=v.diriyahDoorsOpen?'Close doors':'Open doors';
+  }
+ }
  catch(e){if(token!==transitionId)return;$('#loading').hidden=true;$('#stage3d').hidden=true;$('#image-stage').hidden=false;image(variant+'-front.png','Saved exterior render');$('#visual-caption').textContent='Saved render · 3D unavailable';$('#interaction-hint').textContent='Use the local launcher to load 3D';$('#view-top').innerHTML=button('Retry 3D','3d')+button('Enlarge render','enlarge-render');notify('3D could not load. The saved renders remain available.');console.error(e);}
 }
 function render(){
@@ -118,6 +132,12 @@ document.addEventListener('click',e=>{
  if(action==='movie'){$('#movie-dialog').showModal();$('#movie-dialog video').play().catch(()=>{});return;}
  if(action==='3d'||action==='render'){mode=action;render();return;}
  if(action?.startsWith('variant-')){const selected=action.slice('variant-'.length);if(steps[index].type==='variant'){go(selected);return;}variant=selected;viewer?.setVariant(variant);render();return;}
+ if(action==='door-pose'&&viewer?.variant==='diriyah'){
+  viewer.cameraView('rear-gate');
+  viewer.setDiriyahDoorsOpen(!viewer.diriyahDoorsOpen);
+  b.textContent=viewer.diriyahDoorsOpen?'Close doors':'Open doors';
+  return;
+ }
  if(['top','front','rear','rear-gate','reset'].includes(action)){viewer?.cameraView(action==='reset'?'overall':action);return;}
  if(action==='labels'){labels=!labels;viewer?.setLabels(labels);b.classList.toggle('active',labels);return;}
  if(action==='enlarge-plan')enlarge('plan.png');if(action==='enlarge-render')enlarge(variant+'-front.png');if(action==='enlarge-detail')enlarge(steps[index].image);
