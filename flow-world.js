@@ -144,7 +144,12 @@ export const ZONES = [
 ];
 
 export const WALLS = [
-  { id: 'rear', d: 'M110 286 C47 279 10 224 10 154 C10 70 85 10 157 10 L345 10 C416 10 416 77 496 80 C558 82 578 10 674 10 L840 10 C928 10 990 88 990 168 L990 447' },
+  // The rear dip has a 1.8 m public passage centred on the booth: plan
+  // x=425..575 maps to world x=-0.9..0.9. The cubic controls preserve the
+  // traced rear outline up to each opening edge, while separate paths keep
+  // both the renderer and collision model clear through the passage.
+  { id: 'rear-west', d: 'M110 286 C47 279 10 224 10 154 C10 70 85 10 157 10 L345 10 C385.3668 10 402.7832 31.6575 425 50.8971' },
+  { id: 'rear-east', d: 'M575 43.7906 C599.1598 26.6998 627.7661 10 674 10 L840 10 C928 10 990 88 990 168 L990 447' },
   { id: 'front-left', d: 'M110 453 C52 460 10 527 10 601 C10 675 64 742 148 742 L382 742 C434 742 475 723 492 680' },
   { id: 'entry', d: 'M565 486 C524 515 494 544 494 604 L494 672 C495 721 539 742 612 742 L651 742' },
   { id: 'inner', d: 'M817 150 L817 334 C817 420 771 449 672 451 Q621 450 596 463' },

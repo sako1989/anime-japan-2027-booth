@@ -31,7 +31,7 @@ function story(kicker,title,lede,points,note='',status=''){
 }
 function legend(){return `<p class="small-title">Explore the sections</p><div class="legend">${Object.entries(sections).map(([id,s])=>`<button data-step="${id}" title="Explore ${s.name}"><i style="background:${s.color};border:1px solid #0002"></i><span><b>${id}</b> ${s.name}</span></button>`).join('')}</div>`;}
 const variantNames={base:'Base',diriyah:'Diriyah',rijal:'Rijal Al Alma',jeddah:'Jeddah Al Balad'};
-const variantRenderDate={base:'12 October 2026',diriyah:'11 October 2026',rijal:'13 October 2026',jeddah:'13 October 2026'};
+const variantRenderDate={base:'23 November 2026',diriyah:'23 November 2026',rijal:'23 November 2026',jeddah:'23 November 2026'};
 function variants(){return `<p class="small-title">Exterior option</p><div class="version-buttons">${Object.keys(variantNames).map(v=>`<button data-variant="${v}" class="${variant===v?'active':''}">${variantNames[v]}</button>`).join('')}</div>`;}
 function variantToolbar(){return `<span class="view-sep"></span>${Object.keys(variantNames).map(v=>button(variantNames[v],`variant-${v}`,variant===v)).join('')}`;}
 function image(src,alt){$('#image-stage').innerHTML=`<img class="hero-image" src="assets/${src}" alt="${esc(alt)}" data-enlarge="${src}">`;$('#image-stage').className='image-mode'+(steps[index].type==='detail'?' contain':'');}
@@ -45,7 +45,7 @@ function fitPlan(){const stage=$('#image-stage'),wrap=stage.querySelector('.plan
 new ResizeObserver(fitPlan).observe($('#image-stage'));
 async function ensureViewer(){
  if(viewer)return viewer;
- if(!viewerPromise){viewerPromise=import('./viewer.js?v=20261013-windows').then(async ({BoothViewer})=>{
+ if(!viewerPromise){viewerPromise=import('./viewer.js?v=20261123-rear-gate').then(async ({BoothViewer})=>{
   const v=new BoothViewer($('#canvas'),$('#hotspots'),sections,id=>go(id));
   try{await v.load(p=>{$('#loading-label').textContent=p;});viewer=v;window.boothViewer=v;return v;}
   catch(error){v.dispose();throw error;}
@@ -54,7 +54,7 @@ async function ensureViewer(){
 }
 async function show3D(step,token){
  $('#stage3d').hidden=false;$('#image-stage').hidden=true;
- $('#view-top').innerHTML=button('Studio 3D','3d',true)+button('Saved render','render')+'<span class="view-sep"></span>'+button('Top','top')+button('↺ Reset','reset')+button('Sections','labels',labels)+variantToolbar();
+ $('#view-top').innerHTML=button('Studio 3D','3d',true)+button('Saved render','render')+'<span class="view-sep"></span>'+button('Top','top')+button('Rear gate','rear-gate')+button('↺ Reset','reset')+button('Sections','labels',labels)+variantToolbar();
  $('#visual-caption').textContent='Natural studio · '+variantNames[variant];
  $('#interaction-hint').textContent='Drag to orbit · Scroll to zoom';
  if(!viewer){$('#loading').hidden=false;$('#loading-label').textContent='Loading the saved booth model…';}
@@ -86,7 +86,7 @@ function render(){
  }else if(step.type==='variant'){
   const v=content.variants.find(x=>x.id===step.variant);const texts={base:['Plain, clear & adaptable.','Plain neutral walls with straight level tops retain the same curved footprint and interiors.',['A calm exterior option for reviewing the booth without a heritage treatment.','The four replacement walls keep the established curved enclosure and interior layout.','The shared visitor journey and section purposes remain in place.']],diriyah:['Earth, rhythm & warmth.','An earthen facade with triangular motifs gives the booth a warm Diriyah character.',['Textured earth tones wrap the perimeter walls.','Small triangular motifs bring rhythm to the facade.','The shared interior and visitor journey remain in place.']],rijal:['Stone, steps & craft.','Multiple stone-house tops at varied heights give Rijal Almaa its skyline.',['Stepped parapets create a crisp silhouette around the perimeter.','Stone texture and light window details bring contrast and craft.','Compare from the same camera angle to judge the exterior character.']],jeddah:['Plaster, cornice & screens.','Different-height house tops, plaster cornices and timber crowns give Jeddah Al-Balad its skyline.',['Pale plaster gives the facade a light, composed perimeter.','Timber screens add layered shade and detail.','The same section layout supports a consistent visitor experience.']]};const [title,lede,points]=texts[step.variant];story(step.variant==='base'?'Plain wall option':'Heritage direction',title,lede,points,step.variant==='base'?'This option is a neutral wall treatment for comparison; it does not change the booth layout.':'Stylized exhibition facade study. The openings are scenic relief; this is not a historic reconstruction.',step.variant==='base'?'Base option':'Exterior study');$('#story-controls').innerHTML=`<button class="media-preview" data-enlarge="${step.variant}-detail.png"><img src="assets/${step.variant}-detail.png" alt="${v.title} facade detail"><span>Inspect the facade detail ↗</span></button>`;
  }else if(step.type==='compare'){
-  $('#compare-stage').hidden=false;$('#compare-stage').innerHTML=Object.keys(variantNames).map(v=>`<article class="compare-card"><img src="assets/${v}-front.png" alt="${variantNames[v]} front exterior"><div><h3>${variantNames[v]}</h3><p>${content.variants.find(x=>x.id===v).subtitle}</p><button data-step="${v}">Explore in 3D →</button></div></article>`).join('');$('#view-top').innerHTML=`<span class="view-btn">FOUR DESIGNS · SHARED FOOTPRINT</span>`;$('#visual-caption').textContent='Rijal / Jeddah · 13 October · Base · 12 October · Diriyah · 11 October 2026';story('The comparison','Choose the exterior option.','The choice is architectural expression; the experience and section purposes stay consistent.',['Base: plain neutral walls with straight level tops.','Diriyah: earthen warmth and triangular motifs.','Rijal Almaa: a varied skyline of stone houses.','Jeddah Al-Balad: varied house tops, plaster cornices and timber screens.'],'No preferred option is recorded here. Use this view to discuss character, brand fit and production development.');
+  $('#compare-stage').hidden=false;$('#compare-stage').innerHTML=Object.keys(variantNames).map(v=>`<article class="compare-card"><img src="assets/${v}-front.png" alt="${variantNames[v]} front exterior"><div><h3>${variantNames[v]}</h3><p>${content.variants.find(x=>x.id===v).subtitle}</p><button data-step="${v}">Explore in 3D →</button></div></article>`).join('');$('#view-top').innerHTML=`<span class="view-btn">FOUR DESIGNS · SHARED FOOTPRINT</span>`;$('#visual-caption').textContent='All exterior comparisons · 23 November 2026';story('The comparison','Choose the exterior option.','The choice is architectural expression; the experience and section purposes stay consistent.',['Base: plain neutral walls with straight level tops.','Diriyah: earthen warmth and triangular motifs.','Rijal Almaa: a varied skyline of stone houses.','Jeddah Al-Balad: varied house tops, plaster cornices and timber screens.'],'No preferred option is recorded here. Use this view to discuss character, brand fit and production development.');
  }else if(step.type==='section'){
   const s=content.sections.find(x=>x.id===step.section);story(step.section+' / '+sections[step.section].name,s.title,s.purpose,s.experience,s.note,s.status.includes('proposed')?'Purpose confirmed · experience proposed':'Approved installations');$('#story-controls').innerHTML=variants();
  }else if(step.type==='detail'){
@@ -117,7 +117,7 @@ document.addEventListener('click',e=>{
  if(action==='movie'){$('#movie-dialog').showModal();$('#movie-dialog video').play().catch(()=>{});return;}
  if(action==='3d'||action==='render'){mode=action;render();return;}
  if(action?.startsWith('variant-')){const selected=action.slice('variant-'.length);if(steps[index].type==='variant'){go(selected);return;}variant=selected;viewer?.setVariant(variant);render();return;}
- if(['top','front','rear','reset'].includes(action)){viewer?.cameraView(action==='reset'?'overall':action);return;}
+ if(['top','front','rear','rear-gate','reset'].includes(action)){viewer?.cameraView(action==='reset'?'overall':action);return;}
  if(action==='labels'){labels=!labels;viewer?.setLabels(labels);b.classList.toggle('active',labels);return;}
  if(action==='enlarge-plan')enlarge('plan.png');if(action==='enlarge-render')enlarge(variant+'-front.png');if(action==='enlarge-detail')enlarge(steps[index].image);
 });

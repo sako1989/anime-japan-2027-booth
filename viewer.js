@@ -19,19 +19,19 @@ export class BoothViewer {
  async load(progress){
   if(this.model)return;
   const loader=new GLTFLoader();
-  const gltf=await loader.loadAsync('./assets/booth.glb',e=>progress(e.total?`Loading 3D · ${Math.round(e.loaded/e.total*100)}%`:'Loading the booth geometry & artwork…'));
+  const gltf=await loader.loadAsync('./assets/booth.glb?v=20261123-rear-gate',e=>progress(e.total?`Loading 3D · ${Math.round(e.loaded/e.total*100)}%`:'Loading the booth geometry & artwork…'));
   this.model=gltf.scene;this.prepare(this.model);this.scene.add(this.model);
   this.originalWalls=this.findOriginalWalls(this.model);
   try{
    progress('Loading the Base wall option…');
-   const base=await loader.loadAsync('./assets/base-walls.glb');
+   const base=await loader.loadAsync('./assets/base-walls.glb?v=20261123-rear-gate');
    this.baseModel=base.scene;this.prepare(this.baseModel);this.baseGroup=this.baseModel.getObjectByName('variant_base');
    if(!this.baseGroup)throw Error('variant_base was not found in base-walls.glb.');
    this.scene.add(this.baseModel);
   }catch(error){this.baseLoadError=error;console.error('Base wall option unavailable:',error);}
   try{
    progress('Loading the Rijal and Jeddah rooflines…');
-   const heritage=await loader.loadAsync('./assets/heritage-rooflines.glb');
+   const heritage=await loader.loadAsync('./assets/heritage-rooflines.glb?v=20261123-rear-gate');
    this.heritageModel=heritage.scene;this.prepare(this.heritageModel);
    this.heritageGroups={
     rijal:this.findByKey(this.heritageModel,'roofline_rijal'),
@@ -48,6 +48,11 @@ export class BoothViewer {
    }
    this.scene.add(this.heritageModel);
   }catch(error){this.heritageLoadError=error;this.heritageGroups={};this.heritageReplacements={};console.error('Heritage rooflines unavailable:',error);}
+  try{
+   progress('Loading the rear passage gate…');
+   const gate=await loader.loadAsync('./assets/gate.glb?v=20261123-rear-gate');
+   this.gateModel=gate.scene;this.prepare(this.gateModel);this.scene.add(this.gateModel);
+  }catch(error){this.gateLoadError=error;console.error('Rear passage gate unavailable:',error);}
   this.setVariant('base');this.resize();
  }
  prepare(root){root.traverse(o=>{if(o.isMesh){o.frustumCulled=true;o.castShadow=true;o.receiveShadow=true;if(o.name==='VIP_boundary_-_move_these_four_points_in_XY')o.material=new THREE.MeshStandardMaterial({name:'Web VIP velvet rope',color:0x861d2b,roughness:.85});if(o.name==='VIP_boundary_-_move_these_four_points_in_XY_1')o.material=new THREE.MeshStandardMaterial({name:'Web VIP gold posts',color:0xc9a344,metalness:.8,roughness:.25});const mats=Array.isArray(o.material)?o.material:[o.material];mats.forEach(m=>{if(m.map)m.map.anisotropy=Math.min(8,this.renderer.capabilities.getMaxAnisotropy());});}});this.materials.prepare(root);this.studio.register(root);}
@@ -106,7 +111,7 @@ export class BoothViewer {
   document.removeEventListener('visibilitychange',this.onVisibility);this.controls.dispose();
   this.markers.forEach(m=>m.el.remove());this.studio.dispose();this.materials.dispose();
   const geometries=new Set(),materials=new Set(),textures=new Set();
-  for(const root of [this.model,this.baseModel,this.heritageModel])root?.traverse(o=>{if(o.isMesh){geometries.add(o.geometry);for(const m of (Array.isArray(o.material)?o.material:[o.material]))materials.add(m);}});
+  for(const root of [this.model,this.baseModel,this.heritageModel,this.gateModel])root?.traverse(o=>{if(o.isMesh){geometries.add(o.geometry);for(const m of (Array.isArray(o.material)?o.material:[o.material]))materials.add(m);}});
   for(const m of materials){for(const value of Object.values(m))if(value?.isTexture)textures.add(value);m.dispose();}
   for(const texture of textures)texture.dispose();for(const geometry of geometries)geometry.dispose();this.renderer.dispose();
  }
@@ -114,7 +119,7 @@ export class BoothViewer {
  focus(id){this.currentSection=id;this.markers.forEach(m=>m.el.classList.toggle('active',m.id===id));if(id==='overall'){this.cameraView('overall');return;}const a=this.sections[id]?.anchor;if(!a)return;
   const targets={S0:{eye:[7,8,13],target:[1.4,.9,2.6]},S1:{eye:[12,8,12],target:[4,1,1.6]},S2:{eye:[9,13,6],target:[3,1,-1.4]},S3:{eye:[-5,11,9],target:[-1.7,.7,0]},S4:{eye:[-6,11,5],target:[-3,1,-2.1]},S5:{eye:[-9,10,9],target:[-3,1,2.3]}};this.move(targets[id].eye,targets[id].target);
  }
- cameraView(name){const views={overall:[[-11,10,15],[0,.9,0]],top:[[0,22,.015],[0,0,0]],front:[[0,7,24],[0,1,0]],rear:[[0,8,-24],[0,1,0]]};let [eye,target]=views[name]||views.overall;const aspect=this.camera.aspect;const scale=aspect<1.2?Math.max(1,1.15/aspect):1;this.move(eye.map(n=>n*scale),target);}
+ cameraView(name){const views={overall:[[-11,10,15],[0,.9,0]],top:[[0,22,.015],[0,0,0]],front:[[0,7,24],[0,1,0]],rear:[[0,8,-24],[0,1,0]],'rear-gate':[[3.8,3.8,-11],[0,1.7,-3.65]]};let [eye,target]=views[name]||views.overall;const aspect=this.camera.aspect;const scale=aspect<1.2?Math.max(1,1.15/aspect):1;this.move(eye.map(n=>n*scale),target);}
  move(eye,target){this.tween={from:this.camera.position.clone(),to:new THREE.Vector3(...eye),targetFrom:this.controls.target.clone(),targetTo:new THREE.Vector3(...target),start:performance.now(),duration:matchMedia('(prefers-reduced-motion: reduce)').matches?0:750};}
  frame(now){this.frameHandle=requestAnimationFrame(this.frame);if(!this.active||document.hidden)return;if(this.tween){const t=this.tween,u=Math.min(1,(now-t.start)/(t.duration||1)),e=u*u*(3-2*u);this.camera.position.lerpVectors(t.from,t.to,e);this.controls.target.lerpVectors(t.targetFrom,t.targetTo,e);if(u===1)this.tween=null;this.invalidate();}this.controls.update();if(!this.renderRequested)return;this.renderRequested=false;this.studio.render();
   if(this.labels){const w=this.canvas.clientWidth,h=this.canvas.clientHeight;for(const m of this.markers){const p=m.p.clone().project(this.camera);const visible=p.z<1&&p.z>-1&&Math.abs(p.x)<.98&&Math.abs(p.y)<.96;m.el.hidden=!visible;if(visible){m.el.style.left=((p.x+1)/2*w)+'px';m.el.style.top=((-p.y+1)/2*h)+'px';}}}
